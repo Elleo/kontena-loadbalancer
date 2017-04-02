@@ -44,7 +44,6 @@ module Kontena::Actors
 
     def read_etcd
       response = client.get(path, recursive: true)
-      #Actor[:config_generator].async.update(response)
       self.parent << Message.new(:generate_config, response)
     rescue => exc
       error exc.message
