@@ -3,12 +3,12 @@ module Kontena
   module Logging
 
   def self.initialize_logger(log_target = STDOUT)
-    if ENV['RACK_ENV'] == 'test'
-      @logger = Logger.new(File.open(File::NULL, "w"))
-      @logger.level = Logger::UNKNOWN
+    if ENV['DEBUG']
+      @logger = Logger.new(log_target)
+      @logger.level = Logger::DEBUG
     else
       @logger = Logger.new(log_target)
-      @logger.level = ENV["DEBUG"] ? Logger::DEBUG : Logger::INFO
+      @logger.level = ENV['LOG_LEVEL'] ? ENV['LOG_LEVEL'].to_i : Logger::INFO
     end
     @logger
   end

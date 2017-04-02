@@ -11,7 +11,7 @@ module Kontena::Actors
       info "initialized with etcd host=#{host} path=#{path}"
       @host = host
       @path = path
-      @read_task = Concurrent::TimerTask.new(execution_interval: 0.5) {
+      @read_task = Concurrent::TimerTask.new(execution_interval: 1) {
         read_etcd
       }
     end
@@ -47,17 +47,6 @@ module Kontena::Actors
       self.parent << Message.new(:generate_config, response)
     rescue => exc
       error exc.message
-    end
-
-    # @param [Array] children
-    # @param [Etcd::Node] node
-    def map_values_recursive(children, node)
-      if node.directory?
-        children[node.key.sub(@path, ''.freeze)] = node.value if node.key
-        node.children.map{|c| map_values_recursive(children, c) }
-      else
-        children[node.key.sub(@path, ''.freeze)] = node.value
-      end
     end
   end
 end

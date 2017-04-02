@@ -47,10 +47,6 @@ module Kontena::Actors
       @current_pid = pid
     end
 
-    def on_event(event)
-      info "on event: #{event}"
-    end
-
     private
 
     def current_pid
