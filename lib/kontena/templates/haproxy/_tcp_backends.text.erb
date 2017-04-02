@@ -1,0 +1,18 @@
+<% services.each do |service| %>
+listen <%= service.name %>
+    bind *:<%= service.external_port %>
+    mode tcp
+    <% service.custom_settings.each do |setting| %>
+    <%= setting %>
+    <% end %>
+
+    balance <%= service.balance %>
+
+    <% if service.health_check? %>
+    option httpchk GET <%= service.health_check_uri %>
+    <% end %>
+
+    <% service.upstreams.each do |upstream| %>
+    server <%= upstream.name %> <%= upstream.value %> check
+    <% end %>
+<% end %>
