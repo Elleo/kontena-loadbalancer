@@ -24,7 +24,7 @@ module Kontena::Actors
     # @param [String] config
     def update_config(config)
       if @old_config != config
-        info config
+        #info config
         write_config(config)
         @old_config = config
         parent << Message.new(:update_haproxy)
