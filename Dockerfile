@@ -1,18 +1,16 @@
-FROM alpine:3.5
+FROM haproxy:1.5-alpine
 MAINTAINER Kontena, Inc. <info@kontena.io>
 
-ENV CONFD_VERSION=0.11.0 \
-    STATS_PASSWORD=secret \
+ENV STATS_PASSWORD=secret \
     TINI_VERSION=v0.14.0 \
     PATH="/app/bin:${PATH}"
 
-RUN apk update && apk --update add haproxy curl bash tzdata ruby ruby-irb ruby-bigdecimal \
+RUN apk update && apk --update add curl bash tzdata ruby ruby-irb ruby-bigdecimal \
     ruby-io-console ruby-json ruby-rake ca-certificates libssl1.0 openssl libstdc++ && \
     curl -sL -o /bin/tini https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini-static-amd64 && \
     chmod +x /bin/tini
 
-ADD Gemfile /app/
-ADD Gemfile.lock /app/
+ADD Gemfile Gemfile.lock /app/
 
 RUN apk --update add --virtual build-dependencies ruby-dev build-base openssl-dev && \
     gem install bundler --no-ri --no-rdoc && \

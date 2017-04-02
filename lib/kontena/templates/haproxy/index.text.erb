@@ -1,7 +1,7 @@
 global
     pidfile                 /var/run/haproxy.pid
-    user                    haproxy
-    group                   haproxy
+    user                    nobody
+    group                   nobody
     maxconn                 100000
     log                     <%= ENV['SYSLOG_TARGET'] || '127.0.0.1 local1 info' %>
     tune.ssl.default-dh-param 2048
