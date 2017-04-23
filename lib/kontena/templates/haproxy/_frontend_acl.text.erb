@@ -1,6 +1,6 @@
 <% services.each do |service| %>
   <% service.virtual_hosts.each do |virtual_host| %>
-    <% if virtual_host[0] == '*' %>
+    <% if virtual_host.start_with?('*.') %>
     acl host_<%= service.name %> hdr_end(host) -i <%= virtual_host.sub('*.', '.') %>
     <% else %>
     acl host_<%= service.name %> hdr(host) -i <%= virtual_host %>
@@ -11,16 +11,12 @@
   <% end %>
 <% end %>
 
-<% services.each do |service| %>
-  <% if service.virtual_hosts.size > 0 && service.virtual_path %>
+<% services.select { |s| s.virtual_hosts.size > 0 && s.virtual_path }.each do |service| %>
     use_backend <%= service.name %> if host_<%= service.name %> host_<%= service.name %>_virtual_path
-  <% end %>
-
-  <% if service.virtual_hosts.size > 0 && !service.virtual_path %>
+<% end %>
+<% services.select { |s| s.virtual_hosts.size > 0 && s.virtual_path.nil? }.each do |service| %>
     use_backend <%= service.name %> if host_<%= service.name %>
-  <% end %>
-
-  <% if service.virtual_path && service.virtual_hosts.size == 0 %>
+<% end %>
+<% services.select { |s| s.virtual_path && s.virtual_hosts.size == 0 }.each do |service| %>
     use_backend <%= service.name %> if host_<%= service.name %>_virtual_path
-  <% end %>
 <% end %>
