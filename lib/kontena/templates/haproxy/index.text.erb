@@ -28,28 +28,12 @@ defaults
     <% end %>
     <% end %>
 
-listen http-in
-    bind *:80
-    http-request replace-header Host (.*):.* \1
-    <% if ENV['SSL_CERTS'] %>
-    bind *:443 ssl crt /etc/haproxy/certs/ no-sslv3
-    reqadd X-Forwarded-Proto:\ https if { ssl_fc }
-    reqadd X-Forwarded-Port:\ 443 if { ssl_fc }
-    <% end %>
+<% if services.size > 0 %>
+<%= http_in %>
+<% end %>
 
-    errorfile 502 /etc/haproxy/errors/502.http
-    errorfile 503 /etc/haproxy/errors/503.http
-
-    <% if ENV['KONTENA_LB_HEALTH_URI'] %>
-    monitor-uri <%= ENV['KONTENA_LB_HEALTH_URI'] %>
-    errorfile 200 /etc/haproxy/errors/200.http
-    <% end %>
-
-    <%= render partial: 'haproxy/frontend_acl', format: :text, locals: {services: services} %>
-
-
-<%= render partial: 'haproxy/http_backends', format: :text, locals: {services: services} %>
-<%= render partial: 'haproxy/tcp_backends', format: :text, locals: {services: tcp_services} %>
+<%= http_backends %>
+<%= tcp_proxies %>
 
 <%= render partial: 'haproxy/stats', format: :text %>
-<%= render partial: 'haproxy/basic_auth', format: :text, locals: {services: services} %>
+

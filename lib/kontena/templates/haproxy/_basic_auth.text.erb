@@ -1,6 +1,0 @@
-<% services.each do |service| %>
-<% if service.basic_auth? %>
-userlist auth_users_<%= service.name %>
-  <%= service.basic_auth_secrets%>
-<% end %>
-<% end %>

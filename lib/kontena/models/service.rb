@@ -42,7 +42,7 @@ module Kontena::Models
     end
 
     def basic_auth?
-      !@basic_auth.nil?
+      !@basic_auth_secrets.nil?
     end
 
     def health_check?

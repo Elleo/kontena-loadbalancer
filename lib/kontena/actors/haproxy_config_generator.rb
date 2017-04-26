@@ -72,7 +72,8 @@ module Kontena::Actors
           service.custom_settings = c.value.split("\n")
         end
       end
-
+      service.freeze
+      
       service
     end
 
@@ -84,6 +85,7 @@ module Kontena::Actors
           services << service
         end
       end
+      service.freeze
 
       services
     end
