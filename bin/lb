@@ -9,7 +9,7 @@ if ENV['SSL_CERTS']
   cert_splitter = Kontena::CertSplitter.new
   cert_splitter.split_and_write(ENV['SSL_CERTS'])
 end
-supervisor = Kontena::Actors::LbSupervisor.spawn!(name: 'lb_supervisor')
+supervisor = Kontena::Actors::LbSupervisor.spawn!(name: 'lb_supervisor', link: true)
 supervisor << Kontena::Actors::Message.new(:start)
 
 sleep
