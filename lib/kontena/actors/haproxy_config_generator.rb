@@ -16,6 +16,7 @@ module Kontena::Actors
       end
     end
 
+    # @param [Etcd::Node] node
     def update(node)
       root = node.key
       services = []
@@ -34,6 +35,8 @@ module Kontena::Actors
       parent << Message.new(:write_config, config)
     end
 
+    # @param [Etcd::Node] node
+    # @return [Array<Kontena::Models::Service]
     def generate_services(node)
       services = []
       node.children.sort_by { |c| c.key }.each do |c|
@@ -43,6 +46,8 @@ module Kontena::Actors
       services
     end
 
+    # @param [Etcd::Node] node
+    # @return [Kontena::Models::Service]
     def generate_service(node)
       root = node
       service = Kontena::Models::Service.new(node.key.split('/')[-1])
@@ -74,6 +79,8 @@ module Kontena::Actors
       service
     end
 
+    # @param [Etcd::Node]
+    # @param [Array<Kontena::Models::TcpService>]
     def generate_tcp_services(node)
       services = []
       node.children.sort_by { |c| c.key }.each do |c|
@@ -87,6 +94,8 @@ module Kontena::Actors
       services
     end
 
+    # @param [Etcd::Node]
+    # @param [Kontena::Models::TcpService]
     def generate_tcp_service(node)
       root = node
       service = Kontena::Models::TcpService.new(node.key.split('/')[-1])

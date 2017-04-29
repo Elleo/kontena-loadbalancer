@@ -30,10 +30,6 @@ module Kontena::Actors
       end
     end
 
-    def on_event(event)
-      info event
-    end
-
     def start
       @read_task.execute
     end
