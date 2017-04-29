@@ -3,7 +3,7 @@ module Kontena::Actors
   class HaproxySpawner < Concurrent::Actor::RestartingContext
     include Kontena::Logging
 
-    ##
+    # @param [String] haproxy_bin
     # @param [String] config_file
     def initialize(haproxy_bin = '/usr/local/sbin/haproxy', config_file = '/etc/haproxy/haproxy.cfg')
       @current_pid = nil
@@ -11,6 +11,7 @@ module Kontena::Actors
       @validate_cmd = [haproxy_bin, '-c -f', config_file]
     end
 
+    # @param [Kontena::Actors::Message] msg
     def on_message(msg)
       case msg.action
       when :update
@@ -43,7 +44,6 @@ module Kontena::Actors
       info 'Reloading HAProxy'
       reload_cmd = @haproxy_cmd + ['-sf', @current_pid.to_s]
       pid = Process.spawn(reload_cmd.join(' '))
-      Process.wait(@current_pid)
       @current_pid = pid
     end
 
