@@ -1,10 +1,12 @@
-describe Kontena::Views::HttpIn do
+describe Kontena::Views::HttpBackends do
 
   describe '.render' do
     context 'balance' do
       it 'sets balance to roundrobin by default' do
         services = [
-          Kontena::Models::Service.new('foo')
+          Kontena::Models::Service.new('foo').tap { |s|
+            s.upstreams = [Kontena::Models::Upstream.new('foo-1', '10.81.3.2:8080')]
+          }
         ]
         output = described_class.render(
           format: :text,
@@ -17,6 +19,7 @@ describe Kontena::Views::HttpIn do
         services = [
           Kontena::Models::Service.new('foo').tap { |s|
             s.balance = 'leastconn'
+            s.upstreams = [Kontena::Models::Upstream.new('foo-1', '10.81.3.2:8080')]
           }
         ]
         output = described_class.render(
@@ -30,7 +33,9 @@ describe Kontena::Views::HttpIn do
     context 'cookies' do 
       it 'does not add cookie policy if cookie is not set' do
         services = [
-          Kontena::Models::Service.new('foo')
+          Kontena::Models::Service.new('foo').tap { |s|
+            s.upstreams = [Kontena::Models::Upstream.new('foo-1', '10.81.3.2:8080')]
+          }
         ]
         output = described_class.render(
           format: :text,
@@ -44,6 +49,7 @@ describe Kontena::Views::HttpIn do
         services = [
           Kontena::Models::Service.new('foo').tap { |s|
             s.cookie = ''
+            s.upstreams = [Kontena::Models::Upstream.new('foo-1', '10.81.3.2:8080')]
           }
         ]
         output = described_class.render(
@@ -58,6 +64,7 @@ describe Kontena::Views::HttpIn do
         services = [
           Kontena::Models::Service.new('foo').tap { |s|
             s.cookie = 'cookie FOO_ID insert indirect nocache'
+            s.upstreams = [Kontena::Models::Upstream.new('foo-1', '10.81.3.2:8080')]
           }
         ]
         output = described_class.render(
@@ -74,6 +81,7 @@ describe Kontena::Views::HttpIn do
         services = [
           Kontena::Models::Service.new('foo').tap { |s|
             s.basic_auth_secrets = 'user admin insecure-password passwd'
+            s.upstreams = [Kontena::Models::Upstream.new('foo-1', '10.81.3.2:8080')]
           }
         ]
         output = described_class.render(
@@ -88,7 +96,9 @@ describe Kontena::Views::HttpIn do
 
       it 'does not add basic auth if basic_auth_secrets is not set' do
         services = [
-          Kontena::Models::Service.new('foo')
+          Kontena::Models::Service.new('foo').tap { |s|
+            s.upstreams = [Kontena::Models::Upstream.new('foo-1', '10.81.3.2:8080')]
+          }
         ]
         output = described_class.render(
           format: :text,

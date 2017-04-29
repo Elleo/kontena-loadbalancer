@@ -52,5 +52,9 @@ module Kontena::Models
     def custom_settings?
       @custom_settings.size > 0
     end
+
+    def upstreams?
+      @upstreams.size > 0
+    end
   end
 end

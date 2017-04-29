@@ -37,10 +37,7 @@ module Kontena::Actors
     def generate_services(node)
       services = []
       node.children.sort_by { |c| c.key }.each do |c|
-        service = generate_service(c)
-        if service.upstreams.size > 0
-          services << service
-        end
+        services << generate_service(c)
       end
 
       services

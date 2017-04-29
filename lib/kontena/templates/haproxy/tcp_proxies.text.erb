@@ -1,4 +1,5 @@
 <% services.each do |service| %>
+<% if service.upstreams? && service.external_port %>
 listen <%= service.name %>
     bind *:<%= service.external_port %>
     mode tcp
@@ -15,4 +16,5 @@ listen <%= service.name %>
     <% service.upstreams.each do |upstream| %>
     server <%= upstream.name %> <%= upstream.value %> check
     <% end %>
+<% end %>
 <% end %>

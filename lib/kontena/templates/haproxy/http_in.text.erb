@@ -16,6 +16,7 @@ listen http-in
     <% end %>
     
 <% services.each do |service| %>
+<% if service.upstreams? %>
   <% service.virtual_hosts.each do |virtual_host| %>
     <% if virtual_host.start_with?('*.') %>
     acl host_<%= service.name %> hdr_end(host) -i <%= virtual_host.sub('*.', '.') %>
@@ -27,13 +28,14 @@ listen http-in
     acl host_<%= service.name %>_virtual_path url_beg <%= service.virtual_path %>
   <% end %>
 <% end %>
+<% end %>
 
-<% services.select { |s| s.virtual_hosts.size > 0 && s.virtual_path }.each do |service| %>
+<% services.select { |s| s.upstreams? && s.virtual_hosts.size > 0 && s.virtual_path }.each do |service| %>
     use_backend <%= service.name %> if host_<%= service.name %> host_<%= service.name %>_virtual_path
 <% end %>
-<% services.select { |s| s.virtual_hosts.size > 0 && s.virtual_path.nil? }.each do |service| %>
+<% services.select { |s| s.upstreams? && s.virtual_hosts.size > 0 && s.virtual_path.nil? }.each do |service| %>
     use_backend <%= service.name %> if host_<%= service.name %>
 <% end %>
-<% services.select { |s| s.virtual_path && s.virtual_hosts.size == 0 }.each do |service| %>
+<% services.select { |s| s.upstreams? && s.virtual_path && s.virtual_hosts.size == 0 }.each do |service| %>
     use_backend <%= service.name %> if host_<%= service.name %>_virtual_path
 <% end %>
