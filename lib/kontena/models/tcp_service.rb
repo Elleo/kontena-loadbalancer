@@ -5,7 +5,8 @@ module Kontena::Models
                   :upstreams,
                   :balance,
                   :custom_settings,
-                  :external_port
+                  :external_port,
+                  :health_check_uri
 
     def initialize(name)
       @name = name
@@ -13,6 +14,7 @@ module Kontena::Models
       @balance = 'leastconn'
       @external_port = nil
       @custom_settings = []
+      @health_check_uri = nil
     end
 
     def custom_settings?
@@ -21,6 +23,10 @@ module Kontena::Models
 
     def upstreams?
       @upstreams.size > 0
+    end
+
+    def health_check?
+      !@health_check_uri.nil?
     end
   end
 end
