@@ -53,7 +53,7 @@ module Kontena::Actors
       service = Kontena::Models::Service.new(node.key.split('/')[-1])
       node.children.each do |c|
         if c.key == "#{root.key}/upstreams"
-          service.upstreams = c.children.map { |u|
+          service.upstreams = c.children.sort_by{ |u| u.key }.map { |u|
             Kontena::Models::Upstream.new(u.key.split('/')[-1], u.value)
           }
         elsif c.key == "#{root.key}/balance"
@@ -89,7 +89,6 @@ module Kontena::Actors
           services << service
         end
       end
-      service.freeze
 
       services
     end
@@ -101,17 +100,20 @@ module Kontena::Actors
       service = Kontena::Models::TcpService.new(node.key.split('/')[-1])
       node.children.each do |c|
         if c.key == "#{root.key}/upstreams"
-          service.upstreams = c.children.map { |u|
+          service.upstreams = c.children.sort_by{ |u| u.key }.map { |u|
             Kontena::Models::Upstream.new(u.key.split('/')[-1], u.value)
           }
         elsif c.key == "#{root.key}/balance"
           service.balance = c.value
         elsif c.key == "#{root.key}/external_port"
           service.external_port = c.value
+        elsif c.key == "#{root.key}/health_check_uri"
+          service.health_check_uri = c.value
         elsif c.key == "#{root.key}/custom_settings"
           service.custom_settings = c.value.split("\n")
         end
       end
+      service.freeze
 
       service
     end
