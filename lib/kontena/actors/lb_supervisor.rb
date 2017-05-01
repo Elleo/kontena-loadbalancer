@@ -4,7 +4,6 @@ module Kontena::Actors
 
     # @param [Message] msg
     def on_message(msg)
-      #info "got message: #{msg}"
       type = msg.class
 
       if msg.is_a?(Concurrent::ImmutableStruct::ActorMessage)
@@ -82,7 +81,6 @@ module Kontena::Actors
       else
         info "on event: #{event}"
       end
-
     end
   end
 end
