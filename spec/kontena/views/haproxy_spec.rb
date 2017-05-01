@@ -1,9 +1,6 @@
 describe Kontena::Views::Haproxy do
 
   describe '.render' do 
-    context 'http services' do
-    end
-
     context 'stats' do 
       it 'configures stats auth' do
         allow(ENV).to receive(:[])
