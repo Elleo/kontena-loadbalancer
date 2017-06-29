@@ -41,8 +41,11 @@ module Kontena::Actors
     def read_etcd
       response = client.get(path, recursive: true)
       self.parent << Message.new(:generate_config, response)
+    rescue Etcd::KeyNotFound
+      client.set(path, dir: true)
+      retry
     rescue => exc
-      error exc.message
+      error "#{exc.class}: #{exc.message}"
     end
   end
 end
