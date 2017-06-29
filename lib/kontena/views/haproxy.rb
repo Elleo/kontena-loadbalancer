@@ -8,7 +8,7 @@ module Kontena::Views
     include Hanami::View
 
     format :text
-    template 'haproxy/index'
+    template 'haproxy/main'
 
     def http_in
       _raw Kontena::Views::HttpIn.render(format: :text, services: services)
