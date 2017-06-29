@@ -4,19 +4,13 @@ module Kontena::Models
     attr_accessor :name,
                   :upstreams,
                   :balance,
-                  :health_check_uri,
                   :custom_settings
 
     def initialize(name)
       @name = name
       @upstreams = []
       @balance = 'roundrobin'
-      @health_check_uri = nil
       @custom_settings = []
-    end
-
-    def health_check?
-      !@health_check_uri.nil?
     end
 
     def custom_settings?

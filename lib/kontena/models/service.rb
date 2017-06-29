@@ -7,6 +7,7 @@ module Kontena::Models
     attr_accessor :virtual_hosts,
                   :virtual_path,
                   :keep_virtual_path,
+                  :health_check_uri,
                   :cookie,
                   :basic_auth_secrets
 
@@ -16,6 +17,7 @@ module Kontena::Models
       @virtual_hosts = []
       @virtual_path = nil
       @keep_virtual_path = false
+      @health_check_uri = nil
       @cookie = nil
       @basic_auth_secrets = nil
     end
@@ -38,6 +40,10 @@ module Kontena::Models
 
     def basic_auth?
       !@basic_auth_secrets.nil?
+    end
+
+    def health_check?
+      !@health_check_uri.nil?
     end
   end
 end

@@ -9,10 +9,6 @@ listen <%= service.name %>
 
     balance <%= service.balance %>
 
-    <% if service.health_check? %>
-    option httpchk GET <%= service.health_check_uri %>
-    <% end %>
-
     <% service.upstreams.each do |upstream| %>
     server <%= upstream.name %> <%= upstream.value %> check
     <% end %>
