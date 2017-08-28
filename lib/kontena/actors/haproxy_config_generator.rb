@@ -2,6 +2,8 @@ module Kontena::Actors
   class HaproxyConfigGenerator < Concurrent::Actor::RestartingContext
     include Kontena::Logging
 
+    KEY_SEPARATOR = '/'.freeze
+
     def initialize
       info "initialized"
     end
@@ -49,33 +51,37 @@ module Kontena::Actors
     # @param [Etcd::Node] node
     # @return [Kontena::Models::Service]
     def generate_service(node)
-      root = node
-      service = Kontena::Models::Service.new(node.key.split('/')[-1])
+      service = Kontena::Models::Service.new(node.key.split(KEY_SEPARATOR)[-1])
       node.children.each do |c|
-        if c.key == "#{root.key}/upstreams"
+        key = c.key.split(KEY_SEPARATOR)[-1].to_sym
+
+        case key
+        when :upstreams
           service.upstreams = c.children.sort_by{ |u| u.key }.map { |u|
             Kontena::Models::Upstream.new(u.key.split('/')[-1], u.value)
           }
-        elsif c.key == "#{root.key}/balance"
+        when :balance
           service.balance = c.value
-        elsif c.key == "#{root.key}/virtual_hosts"
+        when :virtual_hosts
           service.virtual_hosts = c.value.split(',').compact
-        elsif c.key == "#{root.key}/virtual_path"
+        when :virtual_path
           service.virtual_path = c.value unless c.value.empty?
-        elsif c.key == "#{root.key}/keep_virtual_path"
+        when :keep_virtual_path
           service.keep_virtual_path = c.value
-        elsif c.key == "#{root.key}/cookie"
+        when :cookie
           service.cookie = c.value
-        elsif c.key == "#{root.key}/basic_auth_secrets"
+        when :basic_auth_secrets
           service.basic_auth_secrets = c.value
-        elsif c.key == "#{root.key}/health_check_uri"
+        when :health_check_uri
           service.health_check_uri = c.value
-        elsif c.key == "#{root.key}/custom_settings"
+        when :custom_settings
           service.custom_settings = c.value.split("\n")
+        else
+          debug "unknown key: #{key}"
         end
       end
       service.freeze
-      
+
       service
     end
 
@@ -89,6 +95,7 @@ module Kontena::Actors
           services << service
         end
       end
+      services.freeze
 
       services
     end
@@ -96,20 +103,22 @@ module Kontena::Actors
     # @param [Etcd::Node]
     # @param [Kontena::Models::TcpService]
     def generate_tcp_service(node)
-      root = node
-      service = Kontena::Models::TcpService.new(node.key.split('/')[-1])
+      service = Kontena::Models::TcpService.new(node.key.split(KEY_SEPARATOR)[-1])
       node.children.each do |c|
-        if c.key == "#{root.key}/upstreams"
+        key = c.key.split(KEY_SEPARATOR)[-1].to_sym
+
+        case key
+        when :upstreams
           service.upstreams = c.children.sort_by{ |u| u.key }.map { |u|
-            Kontena::Models::Upstream.new(u.key.split('/')[-1], u.value)
+            Kontena::Models::Upstream.new(u.key.split(KEY_SEPARATOR)[-1], u.value)
           }
-        elsif c.key == "#{root.key}/balance"
+        when :balance
           service.balance = c.value
-        elsif c.key == "#{root.key}/external_port"
+        when :external_port
           service.external_port = c.value
-        elsif c.key == "#{root.key}/health_check_uri"
+        when :health_check_uri
           service.health_check_uri = c.value
-        elsif c.key == "#{root.key}/custom_settings"
+        when :custom_settings
           service.custom_settings = c.value.split("\n")
         end
       end
