@@ -21,10 +21,8 @@ backend <%= service.name %>
     http-request auth realm <%= service.name %> unless auth_ok_<%= service.name %>
     <% end %>
 
-    <% if service.virtual_path? %>
-    <% if !service.keep_virtual_path? %>
+    <% if service.virtual_path? && !service.keep_virtual_path? %>
     reqrep ^([^\ :]*)\ <%= service.virtual_path %>[/]?(.*)     \1\ /\2
-    <% end %>
     <% end %>
 
     <% if service.health_check? %>
