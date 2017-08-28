@@ -2,7 +2,7 @@ FROM haproxy:1.5-alpine
 MAINTAINER Kontena, Inc. <info@kontena.io>
 
 ENV STATS_PASSWORD=secret \
-    TINI_VERSION=v0.14.0 \
+    TINI_VERSION=v0.16.1 \
     PATH="/app/bin:${PATH}"
 
 RUN apk update && apk --update add curl bash tzdata ruby ruby-irb ruby-bigdecimal \
