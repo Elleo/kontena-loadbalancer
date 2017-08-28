@@ -33,17 +33,17 @@ module Kontena::Actors
 
     def start_haproxy
       info 'Starting HAProxy process'
-      @current_pid = Process.spawn(@haproxy_cmd)
+      @current_pid = Process.spawn(@haproxy_cmd.join(' '))
     end
 
     def validate_config
-      system(@validate_cmd) == true
+      system(@validate_cmd.join(' ')) == true
     end
 
     def reload_haproxy
-      info 'Reloading HAProxy'.freeze
+      info 'Reloading HAProxy'
       reload_cmd = @haproxy_cmd + ['-sf', @current_pid.to_s]
-      pid = Process.spawn(reload_cmd)
+      pid = Process.spawn(reload_cmd.join(' '))
       @current_pid = pid
     end
 
