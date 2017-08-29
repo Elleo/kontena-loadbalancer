@@ -9,9 +9,10 @@ module Kontena::Actors
       @server = UDPSocket.new
     end
 
-    # @param [Message] msg
+    # @param [Symbol,Array] msg
     def on_message(msg)
-      case msg.action
+      command, _ = msg
+      case command
       when :start
         start
       else

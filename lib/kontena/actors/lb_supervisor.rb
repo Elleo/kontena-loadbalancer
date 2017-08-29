@@ -2,41 +2,27 @@ module Kontena::Actors
   class LbSupervisor < Concurrent::Actor::RestartingContext
     include Kontena::Logging
 
-    # @param [Message] msg
     def on_message(msg)
-      type = msg.class
+      command, *args = msg
 
-      if msg.is_a?(Concurrent::ImmutableStruct::ActorMessage)
-        on_message_object(msg)
-      elsif msg.is_a?(Symbol)
-        on_message_symbol(msg)
-      else
-        warn "unknown message type: #{type}"
-        pass
-      end
-    end
-
-    def on_message_object(msg)
-      case msg.action
+      case command
       when :start
         start
       when :generate_config
-        generate_config(msg.value)
+        generate_config(args[0])
       when :write_config
-        write_config(msg.value)
+        write_config(args[0])
       when :update_haproxy
         update_haproxy
+      when :terminated
+        raise "child actors should not terminate!"
+      when :reset
+        info "child #{envelope.sender_path} did reset"
+        if envelope.sender == @spawner
+          handle_spawner_reset
+        end
       else
         pass
-      end
-    end
-
-    def on_message_symbol(action)
-      case action
-      when :reset
-        info "got reset event"
-      else
-        info "unhandled message symbol: #{action}"
       end
     end
 
@@ -51,35 +37,34 @@ module Kontena::Actors
     end
 
     def start
-      @syslog_server = SyslogServer.spawn!(name: 'syslog_server')
-      @syslog_server << Message.new(:start)
+      @syslog_server = SyslogServer.spawn!(name: 'syslog_server', supervise: true)
+      @syslog_server << :start
 
-      @config_generator = HaproxyConfigGenerator.spawn!(name: 'haproxy_config_generator')
-      @config_writer = HaproxyConfigWriter.spawn!(name: 'haproxy_config_writer')
-      @spawner = HaproxySpawner.spawn!(name: 'haproxy_spawner')
+      @config_generator = HaproxyConfigGenerator.spawn!(name: 'haproxy_config_generator', supervise: true)
+      @config_writer = HaproxyConfigWriter.spawn!(name: 'haproxy_config_writer', supervise: true)
+      @spawner = HaproxySpawner.spawn!(name: 'haproxy_spawner', supervise: true)
 
       @etcd_watcher = EtcdWatcher.spawn!(name: 'etcd_watcher', args: [etcd_node, etcd_path])
-      @etcd_watcher << Message.new(:start)
+      @etcd_watcher << :start
     end
 
     def generate_config(value)
-      @config_generator << Message.new(:update, value)
+      @config_generator << [:update, value]
     end
 
     def write_config(value)
-      @config_writer << Message.new(:update, value)
+      @config_writer << [:update, value]
     end
 
     def update_haproxy
-      @spawner << Message.new(:update)
+      @spawner << :update
     end
 
-    def on_event(event)
-      case event.class
-      when Concurrent::Actor::UnknownMessage
-        info "on unknown message event: #{event.reference.inspect}"
+    def handle_spawner_reset
+      if @config_writer.ask!(:config_written?)
+        @spawner << :update
       else
-        info "on event: #{event}"
+        warn "cannot reset HAProxySpawner because config has not yet written"
       end
     end
   end

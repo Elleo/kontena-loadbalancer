@@ -10,9 +10,10 @@ module Kontena::Actors
 
     # @param [Message] msg
     def on_message(msg)
-      case msg.action
+      command, *args = msg
+      case command
       when :update
-        update(msg.value)
+        update(args[0])
       else
         pass
       end
@@ -34,7 +35,7 @@ module Kontena::Actors
       config = Kontena::Views::Haproxy.render({
         format: :text, services: services, tcp_services: tcp_services
       }).each_line.reject{ |l| l.strip == ''.freeze }.join
-      parent << Message.new(:write_config, config)
+      parent << [:write_config, config.freeze]
     end
 
     # @param [Etcd::Node] node

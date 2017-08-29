@@ -1,3 +1,5 @@
+require_relative 'haproxy_process'
+require 'securerandom'
 
 module Kontena::Actors
   class HaproxySpawner < Concurrent::Actor::RestartingContext
@@ -11,11 +13,16 @@ module Kontena::Actors
       @validate_cmd = [haproxy_bin, '-c -f', config_file]
     end
 
-    # @param [Kontena::Actors::Message] msg
     def on_message(msg)
-      case msg.action
+      command, _ = msg
+
+      case command
       when :update
         update_haproxy
+      when :terminated
+        if children.size == 1
+          raise "we don't have any child processes, all hope is gone"
+        end
       else
         pass
       end
@@ -23,7 +30,7 @@ module Kontena::Actors
 
     def update_haproxy
       if validate_config
-        if current_pid
+        if children.size > 0
           reload_haproxy
         else
           start_haproxy
@@ -32,25 +39,27 @@ module Kontena::Actors
     end
 
     def start_haproxy
-      info 'Starting HAProxy process'
-      @current_pid = Process.spawn(@haproxy_cmd.join(' '))
+      spawn_process(@haproxy_cmd)
     end
 
     def validate_config
+      info "validating config"
       system(@validate_cmd.join(' ')) == true
     end
 
     def reload_haproxy
-      info 'Reloading HAProxy'
-      reload_cmd = @haproxy_cmd + ['-sf', @current_pid.to_s]
-      pid = Process.spawn(reload_cmd.join(' '))
-      @current_pid = pid
+      process = children.last
+      info "child processes: #{children.map{ |c| c.ask!(:pid) }}"
+      pid = process.ask!(:pid)
+      reload_cmd = @haproxy_cmd + ['-sf', pid.to_s]
+      spawn_process(reload_cmd)
     end
 
-    private
-
-    def current_pid
-      @current_pid
+    def spawn_process(cmd)
+      process_uuid = "haproxy-process-#{SecureRandom.uuid}"
+      process = Kontena::Actors::HaproxyProcess.spawn!(name: process_uuid, args: [cmd])
+      process << :run
+      process
     end
   end
 end

@@ -20,9 +20,10 @@ module Kontena::Actors
       Concurrent.global_io_executor
     end
 
-    # @param [Message] msg
+    # @param [Symbol,Array] msg
     def on_message(msg)
-      case msg.action
+      command, _ = msg
+      case command
       when :start
         start
       else
@@ -40,7 +41,7 @@ module Kontena::Actors
 
     def read_etcd
       response = client.get(path, recursive: true)
-      self.parent << Message.new(:generate_config, response)
+      self.parent << [:generate_config, response.freeze]
     rescue Etcd::KeyNotFound
       client.set(path, dir: true)
       retry

@@ -10,14 +10,20 @@ module Kontena::Actors
       @old_config = ''
     end
 
-    # @param [Kontena::Models::Message] msg 
     def on_message(msg)
-      case msg.action
+      command, *args = msg
+      case command
       when :update
-        update_config(msg.value)
+        update_config(args[0])
+      when :config_written?
+        config_written?
       else
         pass
       end
+    end
+
+    def config_written?
+      !@old_config.empty?
     end
 
     # @param [String] config
@@ -25,7 +31,7 @@ module Kontena::Actors
       if @old_config != config
         write_config(config)
         @old_config = config
-        parent << Message.new(:update_haproxy)
+        parent << :update_haproxy
       end
     end
 

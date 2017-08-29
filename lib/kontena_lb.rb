@@ -1,4 +1,5 @@
 require 'concurrent/actor'
+require 'concurrent/future'
 require 'hanami/view'
 require_relative 'kontena/logging'
 require_relative 'kontena/models/service'
@@ -9,7 +10,6 @@ require_relative 'kontena/cert_splitter'
 
 require_relative 'kontena/views/haproxy'
 
-require_relative 'kontena/actors/message'
 require_relative 'kontena/actors/lb_supervisor'
 require_relative 'kontena/actors/etcd_watcher'
 require_relative 'kontena/actors/haproxy_config_generator'

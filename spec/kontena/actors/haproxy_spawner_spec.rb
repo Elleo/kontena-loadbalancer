@@ -10,6 +10,7 @@ describe Kontena::Actors::HaproxySpawner do
     end
 
     it 'starts haproxy if config is valid and haproxy is not yet running' do
+      allow(subject).to receive(:children).and_return([])
       allow(subject).to receive(:validate_config).and_return(true)
       expect(subject).to receive(:start_haproxy)
       expect(subject).not_to receive(:reload_haproxy)
@@ -18,7 +19,7 @@ describe Kontena::Actors::HaproxySpawner do
 
     it 'reloads haproxy if config is valid and haproxy is already running' do
       allow(subject).to receive(:validate_config).and_return(true)
-      allow(subject).to receive(:current_pid).and_return(rand(10..100))
+      allow(subject).to receive(:children).and_return([1])
       expect(subject).not_to receive(:start_haproxy)
       expect(subject).to receive(:reload_haproxy)
       subject.update_haproxy
