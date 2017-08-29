@@ -6,7 +6,7 @@ rm -f /var/run/haproxy.pid > /dev/null 2>&1
 rm -f /etc/haproxy/haproxy.cfg > /dev/null 2>&1
 
 
-if [ -z "$ETCD_NODE"]; then
+if [ -z "$ETCD_NODE" ]; then
   IP=$(/sbin/ip route | awk '/default/ { print $3 }')
   ETCD_NODE=$IP
 fi
