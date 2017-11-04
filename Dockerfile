@@ -5,7 +5,7 @@ ENV CONFD_VERSION=0.11.0 \
     STATS_PASSWORD=secret \
     TINI_VERSION=v0.8.4
 
-RUN echo 'deb http://ppa.launchpad.net/vbernat/haproxy-1.5/ubuntu trusty main' >> /etc/apt/sources.list && \
+RUN echo 'deb http://ppa.launchpad.net/vbernat/haproxy-1.6/ubuntu trusty main' >> /etc/apt/sources.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 505D97A41C61B9CD && \
     apt-get update
 
